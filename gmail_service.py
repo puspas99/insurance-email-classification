@@ -577,8 +577,6 @@ def download_attachments_message_base64(service, msg_id, target_dir):
         return {}
 
 
-
-
 def  get_attachments_as_dict(service, msg_id):
 
     try:
@@ -615,3 +613,28 @@ def  get_attachments_as_dict(service, msg_id):
 
 def encode_to_base64(data):
     return base64.b64encode(data.encode('utf-8')).decode('utf-8')
+
+def mark_email_as_unread(service, message_id):
+    user_id = 'me'
+    try:
+         # Get the current labels of the message
+        message = service.users().messages().get(userId='me', id=message_id).execute()
+        current_labels = message.get('labelIds', [])
+        if 'UNREAD' not in current_labels:
+            result = service.users().messages().modify(
+                userId=user_id,
+                id=message_id,
+                body={
+                    'addLabelIds': ['UNREAD'],
+                    'removeLabelIds': []
+                }
+            ).execute()
+
+            print("Successfully marked as unread")
+        else:
+            print("Message is already marked as unread")
+            return True
+ 
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False

@@ -1,5 +1,5 @@
 from pathlib import Path
-from gmail_api import init_gmail_service, get_latest_unread_email_inbox,mark_email_as_read, is_email_spam,get_attachments_as_dict,encode_to_base64,send_email
+from gmail_service import init_gmail_service, get_latest_unread_email_inbox,mark_email_as_read, is_email_spam,get_attachments_as_dict,mark_email_as_unread,send_email
 from file_operation import delete_all_files_in_folder
 
 import json
@@ -38,7 +38,7 @@ class GmailReader:
                 # Mark email as read
                 result = mark_email_as_read(self._service, msg_id)
                 if result:
-                    print("Email marked as read successfully.")
+                    print("Email marked as read successfully,msg_id=",msg_id)
                 else:
                     print("Failed to mark the email as read.")
                 final_email = final_json
@@ -53,3 +53,6 @@ class GmailReader:
 
     def replay(self, msg_id, to, subject, body):
         send_email(self._service, to, subject, body, message_id=msg_id)
+   
+    def mark_email_as_unread(self, msg_id):
+        mark_email_as_unread(self._service, message_id=msg_id)   

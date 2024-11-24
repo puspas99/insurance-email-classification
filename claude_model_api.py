@@ -118,8 +118,6 @@ class InsuranceEmailClasifier:
             resp = tool_blocks[0]["input"]
             print('Admin subject : ' + resp["adminMailSubject"])
             print('Customer Reply : ' + resp["customerReply"])
-            # Extract and format response
-           # message.tool_calls[0].function.arguments if message.tool_calls else None
             return resp if resp else None
             
         except Exception as e:
