@@ -23,6 +23,6 @@ while True:
             g.send_plan_mail(resp["adminMailSubject"], resp["adminMailBody"], email["attachments"])
         else:
           print("InsuranceClassifier experiencied error while analysis the email content, for email_form = ",email["email_from"])
-          g.mark_email_as_unread(email['msg_id'])
+          #g.mark_email_as_unread(email['msg_id'])
         print("Done")
     time.sleep(1)

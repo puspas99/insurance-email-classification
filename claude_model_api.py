@@ -1,7 +1,7 @@
 from anthropic import Anthropic
-import re
 from typing import Dict, List, Optional
 import base64
+from pdf_to_image import convert_pdf_to_images
 
 class InsuranceEmailClasifier:
     def __init__(self,  api_key: str):
@@ -30,7 +30,34 @@ class InsuranceEmailClasifier:
                     "required": ["adminMailSubject", "adminMailBody", "customerReply"]
                 }
         }]
+
+    def createAttachment(self, type, mediaType, data):
+        if "text" in type:
+            return [{
+                "type": "text",
+                "text": data.decode('UTF-8')
+            }]
         
+        if "application/pdf" in mediaType:
+            images = convert_pdf_to_images(data)
+            content = []
+            for i in images:
+                ic = self.createAttachment('image', 'image/png', i)
+                content.extend(ic)
+            return content
+
+        b64 = base64.b64encode(data).decode('utf-8')
+        source = {
+            "type": "base64",
+            "media_type": mediaType,
+            "data": b64
+        }
+        
+        return [{
+            "type": type,
+            "source": source
+        }]
+
     def construct_content(self, email_content: str, attachments:List[Dict] = None) -> str :
         """Create content"""
 
@@ -51,39 +78,21 @@ class InsuranceEmailClasifier:
         if attachments:
             content.append({
                 "type": "text",
-                "text": "These are the attachments in thie email"
+                "text": "These are the attachments in the email."
             })
         else:
             content.append({
                 "type": "text",
-                "text": "Not find any attachments in the email"
+                "text": "Not find attachments in the email"
             })
-
+        
         for att in attachments:
-                if "text" in att["type"]:
-                    content.append({
-                        "type": "text",
-                        "text": att["data"].decode('UTF-8')
-                    })
-                elif "application/pdf" in att["mediaType"]: 
-                    b64 = base64.b64encode(att["data"]).decode('utf-8') 
-                    source = {
-                        "type": "document",
-                        "media_type": att["mediaType"],
-                        "data": b64
-                    }
-                else:
-                    b64 = base64.b64encode(att["data"]).decode('utf-8')
-                    source = {
-                        "type": "base64",
-                        "media_type": att["mediaType"],
-                        "data": b64 
-                    }
-                    
-                    content.append({
-                        "type": att["type"],
-                        "source": source
-                    })
+                type = att["type"]
+                mediaType = att["mediaType"]
+                attachContent = self.createAttachment(type, mediaType, att["data"])
+                content.extend(attachContent)
+                
+        print('Content Size: ', len(content))
         return content
     
     def process_email(self, name, date, subject, body, attachments: List[Dict] = None):
@@ -98,7 +107,7 @@ class InsuranceEmailClasifier:
 
         try:
             message = self._client.messages.create(
-                model="claude-3-5-sonnet-20240620",
+                model="claude-3-5-sonnet-20241022",
                 max_tokens=1000,
                 system=self._system,
                 messages=[{
