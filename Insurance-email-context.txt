@@ -10,7 +10,7 @@ to complete the task
 5. Create action plans for admin with detailed description or points for each department that needed to complete the request
 6. If attachments are mentioned but not included in the email, ensure both responses address this.
     Identify whether customer referring to any atachments. IF so, the customer must add those attachments in the mail.
-7.Always prioritize accuracy in categorization
+7.Always prioritize accuracy in categorization,keep in mind for customer language communicatation.
 8.Flag any unclear or ambiguous elements that need clarification in both admin and custome reply.
 
 Generate two responses:
